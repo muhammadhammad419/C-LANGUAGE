@@ -9,7 +9,11 @@
                 "-g",
                 "${file}",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${fileDirname}\\${fileBasenameNoExtension}.exe", // Keep this comma
+                "-I", "C:\\mysql-connector\\include", // Path to your include folder
+                "-L", "C:\\mysql-connector\\lib",     // Path to your lib folder
+                "-lmysql",
+                "-lm" // Keep -lm if you use math functions elsewhere
             ],
             "options": {
                 "cwd": "${fileDirname}"

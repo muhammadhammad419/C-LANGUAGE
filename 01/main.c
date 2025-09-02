@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <conio.h>
+#include <string.h>
+#include <stdlib.h> // For system("cls") or system("clear")
 // --------------------------------------- Mulitplication Function ------------------------------
 // int main() {
 //     printf("Multiplication Program \n");
@@ -170,41 +172,206 @@
 //     return 0;
 // }
 
-int main() {
-    int arr[4];
-    int i;
-    float s;
-    float per;
+// int main() {
+//     int arr[7];
+//     int i;
+//     float s = 0.0f;
+//     float per;
+//     const char* subjects[] = {
+//         "English", "Urdu", "Maths", "Economic", "Computer","pk","Al Quran"
+//     };
 
-    for(i = 0; i < 5; i++) {
-        scanf("%d", &arr[i]);
+//     for(i = 0; i < 7; i++) {
+//         printf("Enter the %s subject number: ", subjects[i]);
+//         scanf("%d", &arr[i]);
+//     }
+
+//     for(i = 0; i < 7; i++) {
+//         s = s + arr[i];
+//     }
+//     printf("Total Number: %.0f\n",s);
+//     per = (s / 550.0f) * 100.0f;
+//     printf("Percentage is: %.2f%%\n",per);
+//     return 0;
+// }
+
+
+
+#define MAX_CANDIDATES 10
+#define MAX_NAME_LENGTH 50
+
+// Structure to represent a single candidate
+typedef struct {
+    char name[MAX_NAME_LENGTH];
+    int votes;
+} Candidate;
+
+// Global array to store all candidates and a counter
+Candidate candidates[MAX_CANDIDATES];
+int candidate_count = 0;
+
+// Function Prototypes
+void addCandidate();
+void castVote();
+void displayResults();
+void findWinner();
+void clearInputBuffer();
+void displayMenu();
+
+int main() {
+    int choice;
+
+    // Main menu loop
+    do {
+        displayMenu();
+        if (scanf("%d", &choice) != 1) {
+            printf("Invalid input. Please enter a number.\n");
+            clearInputBuffer(); // Clear the faulty input
+            choice = 0; // Reset choice to avoid exiting
+            continue;
+        }
+        clearInputBuffer(); // Consume the newline character left by scanf
+
+        // Use system("cls") for Windows or system("clear") for Linux/macOS
+        system("cls"); 
+
+        switch (choice) {
+            case 1:
+                addCandidate();
+                break;
+            case 2:
+                castVote();
+                break;
+            case 3:
+                displayResults();
+                break;
+            case 4:
+                findWinner();
+                break;
+            case 5:
+                printf("Exiting the voting system. Goodbye!\n");
+                break;
+            default:
+                printf("Invalid choice! Please select a valid option (1-5).\n");
+        }
+        printf("\nPress Enter to continue...");
+        getchar(); // Wait for user to press Enter
+
+    } while (choice != 5);
+
+    return 0;
+}
+
+// Displays the main menu options
+void displayMenu() {
+    // Use system("cls") for Windows or system("clear") for Linux/macOS
+    system("cls");
+    printf("\n===== VOTE MANAGEMENT SYSTEM =====\n");
+    printf("1. Add Candidate\n");
+    printf("2. Cast Vote\n");
+    printf("3. Show Vote Count\n");
+    printf("4. Find Winner\n");
+    printf("5. Exit\n");
+    printf("==================================\n");
+    printf("Enter your choice: ");
+}
+
+// Adds a new candidate to the election
+void addCandidate() {
+    if (candidate_count >= MAX_CANDIDATES) {
+        printf("Maximum number of candidates reached (%d).\n", MAX_CANDIDATES);
+        return;
+    }
+
+    printf("Enter the name of the new candidate: ");
+    // fgets is safer than scanf for strings as it prevents buffer overflows
+    fgets(candidates[candidate_count].name, MAX_NAME_LENGTH, stdin);
+    // Remove the newline character that fgets stores
+    candidates[candidate_count].name[strcspn(candidates[candidate_count].name, "\n")] = 0;
+
+    candidates[candidate_count].votes = 0; // Initialize votes to zero
+    candidate_count++;
+
+    printf("Candidate added successfully!\n");
+}
+
+// Casts a vote for a chosen candidate
+void castVote() {
+    if (candidate_count == 0) {
+        printf("No candidates have been registered yet. Please add a candidate first.\n");
+        return;
+    }
+
+    int choice;
+    printf("----- Cast Your Vote -----\n");
+    for (int i = 0; i < candidate_count; i++) {
+        printf("%d. %s\n", i + 1, candidates[i].name);
+    }
+    printf("--------------------------\n");
+    printf("Enter the number of the candidate you want to vote for: ");
+
+    if (scanf("%d", &choice) != 1) {
+        printf("Invalid input. Please enter a number.\n");
+        clearInputBuffer();
+        return;
+    }
+    clearInputBuffer();
+
+    if (choice > 0 && choice <= candidate_count) {
+        candidates[choice - 1].votes++;
+        printf("Your vote for %s has been cast!\n", candidates[choice - 1].name);
+    } else {
+        printf("Invalid candidate number. Please try again.\n");
+    }
+}
+
+// Displays the current results for all candidates
+void displayResults() {
+    if (candidate_count == 0) {
+        printf("No votes to display as no candidates are registered.\n");
+        return;
+    }
+
+    printf("----- ELECTION RESULTS -----\n");
+    for (int i = 0; i < candidate_count; i++) {
+        printf("%s: %d votes\n", candidates[i].name, candidates[i].votes);
+    }
+    printf("----------------------------\n");
+}
+
+// Finds and displays the winner(s) of the election
+void findWinner() {
+    if (candidate_count == 0) {
+        printf("Cannot determine a winner. No candidates are registered.\n");
+        return;
+    }
+
+    int max_votes = -1;
+
+    // First, find the highest vote count
+    for (int i = 0; i < candidate_count; i++) {
+        if (candidates[i].votes > max_votes) {
+            max_votes = candidates[i].votes;
+        }
     }
     
-        switch(arr[i]) {
-        case 0:
-            printf("Enter the English subject number:");
-            break;
-        case 1:
-            printf("Enter the Urdu subject number:");
-            break;
-        case 2:
-            printf("Enter the Maths subject number:");
-            break;
-        case 3:
-            printf("Enter the Economic subject number:");
-            break;
-        case 4:
-            printf("Enter the Computer subject number:");
-            break;
-        default:
-            printf("Invalid input");
+    if (max_votes == 0) {
+        printf("No votes have been cast yet. Cannot determine a winner.\n");
+        return;
     }
 
-    for(i = 0; i < 5; i++) {
-        s = s + arr [i];
+    printf("----- WINNER(S) -----\n");
+    // Second, find all candidates who have that highest vote count (to handle ties)
+    for (int i = 0; i < candidate_count; i++) {
+        if (candidates[i].votes == max_votes) {
+            printf("Winner: %s with %d votes!\n", candidates[i].name, max_votes);
+        }
     }
-    printf("Total Number: %5.0f\n",s);
-    per = (s / 550) * 100;
-    printf("Persantage is: %5.2f ",per);
-    return 0;
+    printf("----------------------\n");
+}
+
+// A utility function to clear the input buffer after using scanf
+void clearInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 }
